@@ -58,3 +58,15 @@ export async function getMeeting(meetingId: string) {
 
   return res.json();
 }
+
+export async function transcribeMeeting(meetingId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/meetings/${meetingId}/transcribe`, {
+    method: "POST",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to transcribe meeting");
+  }
+
+  return res.json();
+}

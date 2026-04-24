@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getMeeting } from "@/lib/api";
+import { getMeeting, transcribeMeeting } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 type Meeting = {
   id: string;
@@ -13,6 +14,7 @@ type Meeting = {
   status: string;
   created_at: string;
   audio_path: string;
+  transcript?: string;
 };
 
 export default function MeetingDetail() {
@@ -21,6 +23,7 @@ export default function MeetingDetail() {
 
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [loading, setLoading] = useState(true);
+  const [transcribing, setTranscribing] = useState(false);
 
   useEffect(() => {
     if (!meetingId) return;
@@ -30,6 +33,20 @@ export default function MeetingDetail() {
       .catch(() => setMeeting(null))
       .finally(() => setLoading(false));
   }, [meetingId]);
+
+  async function handleTranscribe() {
+    if (!meetingId) return;
+
+    try {
+      setTranscribing(true);
+      const updatedMeeting = await transcribeMeeting(meetingId);
+      setMeeting(updatedMeeting);
+    } catch {
+      alert("Failed to transcribe meeting.");
+    } finally {
+      setTranscribing(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -60,15 +77,35 @@ export default function MeetingDetail() {
           </h1>
 
           <p className="mt-2 text-sm text-zinc-500">{meeting.filename}</p>
+
+          <div className="mt-6">
+            <Button
+              onClick={handleTranscribe}
+              disabled={transcribing || meeting.status === "transcribed"}
+            >
+              {transcribing
+                ? "Transcribing..."
+                : meeting.status === "transcribed"
+                  ? "Transcribed"
+                  : "Transcribe Meeting"}
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <Card className="border-zinc-800 bg-zinc-950">
+          <Card className="border-zinc-800 bg-zinc-950 md:col-span-3">
             <CardContent className="p-6">
               <h2 className="font-semibold text-white">Transcript</h2>
-              <p className="mt-2 text-sm text-zinc-400">
-                Coming next: Whisper transcription.
-              </p>
+
+              {meeting.transcript ? (
+                <p className="mt-3 max-h-72 overflow-y-auto text-sm leading-6 text-zinc-400">
+                  {meeting.transcript}
+                </p>
+              ) : (
+                <p className="mt-2 text-sm text-zinc-400">
+                  Click “Transcribe Meeting” to generate a transcript.
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -86,6 +123,15 @@ export default function MeetingDetail() {
               <h2 className="font-semibold text-white">Action Items</h2>
               <p className="mt-2 text-sm text-zinc-400">
                 Extracted tasks will appear here.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-zinc-800 bg-zinc-950">
+            <CardContent className="p-6">
+              <h2 className="font-semibold text-white">Chat</h2>
+              <p className="mt-2 text-sm text-zinc-400">
+                Meeting Q&A will appear here.
               </p>
             </CardContent>
           </Card>

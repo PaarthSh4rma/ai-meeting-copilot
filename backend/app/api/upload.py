@@ -4,6 +4,7 @@ import json
 import os
 import uuid
 from fastapi import HTTPException
+from app.services.transcription_service import transcribe_audio
 
 router = APIRouter()
 
@@ -99,5 +100,33 @@ def get_meeting(meeting_id: str):
 
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
+
+    return meeting
+
+@router.post("/meetings/{meeting_id}/transcribe")
+def transcribe_meeting(meeting_id: str):
+    meetings = load_meetings()
+
+    meeting = next(
+        (meeting for meeting in meetings if meeting["id"] == meeting_id),
+        None,
+    )
+
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    audio_path = meeting.get("audio_path")
+
+    if not audio_path or not os.path.exists(audio_path):
+        raise HTTPException(status_code=404, detail="Audio file not found")
+
+    meeting["status"] = "transcribing"
+    save_meetings(meetings)
+
+    transcript = transcribe_audio(audio_path)
+
+    meeting["transcript"] = transcript
+    meeting["status"] = "transcribed"
+    save_meetings(meetings)
 
     return meeting
