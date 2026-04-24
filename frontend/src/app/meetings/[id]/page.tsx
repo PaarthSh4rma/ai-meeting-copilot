@@ -12,6 +12,7 @@ import {
   MessageSquareText,
   Send,
   Sparkles,
+  WandSparkles,
 } from "lucide-react";
 
 import { BackButton } from "@/components/layout/back-button";
@@ -45,14 +46,14 @@ function getStatusClass(status: string) {
   }
 
   if (status === "transcribed") {
-    return "border-blue-500/20 bg-blue-500/10 text-blue-400";
+    return "border-cyan-400/20 bg-cyan-400/10 text-cyan-200";
   }
 
   if (status === "transcribing" || status === "summarizing") {
     return "border-yellow-500/20 bg-yellow-500/10 text-yellow-400";
   }
 
-  return "border-zinc-700 bg-zinc-800 text-zinc-300";
+  return "border-zinc-700 bg-zinc-900 text-zinc-300";
 }
 
 export default function MeetingDetail() {
@@ -84,7 +85,7 @@ export default function MeetingDetail() {
       const updatedMeeting = await transcribeMeeting(meetingId);
       setMeeting(updatedMeeting);
     } catch {
-      alert("Failed to transcribe meeting.");
+      alert("Transcription failed. On the hosted demo, AI processing may require the local backend.");
     } finally {
       setTranscribing(false);
     }
@@ -98,7 +99,9 @@ export default function MeetingDetail() {
       const updatedMeeting = await summarizeMeeting(meetingId);
       setMeeting(updatedMeeting);
     } catch {
-      alert("Failed to summarize meeting.");
+      alert(
+        "Summary generation is only available when the backend is running locally with Ollama. The hosted demo supports the UI, but local AI inference is not available on Render."
+      );
     } finally {
       setSummarizing(false);
     }
@@ -112,7 +115,9 @@ export default function MeetingDetail() {
       const res = await askMeeting(meetingId, question.trim());
       setAnswer(res.answer);
     } catch {
-      alert("Failed to get answer.");
+      alert(
+        "Meeting Q&A is only available when the backend is running locally with Ollama."
+      );
     } finally {
       setAsking(false);
     }
@@ -120,8 +125,9 @@ export default function MeetingDetail() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black px-6 py-16 text-white">
-        <div className="mx-auto max-w-6xl">
+      <main className="relative min-h-screen overflow-hidden bg-black px-6 py-16 text-white">
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(99,102,241,0.24),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(34,211,238,0.16),transparent_28%),radial-gradient(circle_at_50%_90%,rgba(168,85,247,0.14),transparent_36%)]" />
+        <div className="relative mx-auto max-w-7xl">
           <p className="flex items-center gap-2 text-zinc-400">
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading meeting...
@@ -133,8 +139,9 @@ export default function MeetingDetail() {
 
   if (!meeting) {
     return (
-      <main className="min-h-screen bg-black px-6 py-16 text-white">
-        <div className="mx-auto max-w-6xl">
+      <main className="relative min-h-screen overflow-hidden bg-black px-6 py-16 text-white">
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(99,102,241,0.24),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(34,211,238,0.16),transparent_28%),radial-gradient(circle_at_50%_90%,rgba(168,85,247,0.14),transparent_36%)]" />
+        <div className="relative mx-auto max-w-7xl">
           <p className="text-zinc-400">Meeting not found.</p>
         </div>
       </main>
@@ -142,81 +149,98 @@ export default function MeetingDetail() {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,#18181b_0%,#000_45%)] px-6 py-10 text-white">
-      <div className="mx-auto max-w-7xl">
+    <main className="relative min-h-screen overflow-hidden bg-black px-6 py-10 text-white">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(99,102,241,0.24),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(34,211,238,0.16),transparent_28%),radial-gradient(circle_at_50%_90%,rgba(168,85,247,0.14),transparent_36%)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:72px_72px] opacity-20" />
+
+      <div className="relative mx-auto max-w-7xl">
         <BackButton label="Back to dashboard" />
 
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-950/60 p-6 shadow-2xl shadow-black/30">
-          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-start">
-            <div className="min-w-0">
-              <Badge variant="outline" className={getStatusClass(meeting.status)}>
-                {meeting.status}
-              </Badge>
+        <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/70 shadow-2xl shadow-black/50 backdrop-blur-xl">
+          <div className="relative p-8 sm:p-10">
+            <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-cyan-400/10 blur-3xl" />
+            <div className="absolute bottom-0 left-1/2 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl" />
 
-              <h1 className="mt-5 max-w-4xl truncate text-4xl font-bold tracking-tight sm:text-5xl">
-                {meeting.title || meeting.filename}
-              </h1>
+            <div className="relative flex flex-col justify-between gap-8 lg:flex-row lg:items-start">
+              <div className="min-w-0">
+                <Badge
+                  variant="outline"
+                  className={getStatusClass(meeting.status)}
+                >
+                  {meeting.status}
+                </Badge>
 
-              <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-zinc-500">
-                <span className="flex items-center gap-2">
-                  <FileAudio className="h-4 w-4" />
-                  {meeting.filename}
-                </span>
+                <h1 className="mt-6 max-w-5xl truncate text-5xl font-bold tracking-tight sm:text-6xl">
+                  <span className="bg-gradient-to-r from-cyan-200 via-white to-violet-300 bg-clip-text text-transparent">
+                    {meeting.title || meeting.filename}
+                  </span>
+                </h1>
+
+                <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-zinc-500">
+                  <span className="flex items-center gap-2">
+                    <FileAudio className="h-4 w-4" />
+                    {meeting.filename}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div className="flex flex-wrap gap-3">
-              <Button
-                onClick={handleTranscribe}
-                disabled={transcribing || meeting.status === "transcribed" || meeting.status === "completed"}
-                className="rounded-full bg-white text-black hover:bg-zinc-200"
-              >
-                {transcribing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Transcribing...
-                  </>
-                ) : meeting.transcript ? (
-                  <>
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Transcribed
-                  </>
-                ) : (
-                  <>
-                    <FileText className="mr-2 h-4 w-4" />
-                    Transcribe
-                  </>
-                )}
-              </Button>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  onClick={handleTranscribe}
+                  disabled={
+                    transcribing ||
+                    meeting.status === "transcribed" ||
+                    meeting.status === "completed"
+                  }
+                  className="h-12 rounded-2xl bg-white px-6 text-black hover:bg-zinc-200"
+                >
+                  {transcribing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Transcribing...
+                    </>
+                  ) : meeting.transcript ? (
+                    <>
+                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                      Transcribed
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="mr-2 h-4 w-4" />
+                      Transcribe
+                    </>
+                  )}
+                </Button>
 
-              <Button
-                onClick={handleSummarize}
-                disabled={summarizing || !meeting.transcript}
-                variant="outline"
-                className="rounded-full border-zinc-700 bg-transparent text-white hover:bg-zinc-900"
-              >
-                {summarizing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Generate insights
-                  </>
-                )}
-              </Button>
+                <Button
+                  onClick={handleSummarize}
+                  disabled={summarizing || !meeting.transcript}
+                  variant="outline"
+                  className="h-12 rounded-2xl border-white/10 bg-transparent px-6 text-white hover:bg-white/5"
+                >
+                  {summarizing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <WandSparkles className="mr-2 h-4 w-4" />
+                      Generate insights
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </section>
 
         <section className="mt-6 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <Card className="border-zinc-800 bg-zinc-950/70">
+          <Card className="border-white/10 bg-zinc-950/60 backdrop-blur">
             <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="rounded-xl bg-zinc-900 p-2">
-                  <FileText className="h-5 w-5 text-zinc-300" />
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/5 text-cyan-200">
+                  <FileText className="h-5 w-5" />
                 </div>
                 <div>
                   <h2 className="font-semibold text-white">Transcript</h2>
@@ -227,13 +251,13 @@ export default function MeetingDetail() {
               </div>
 
               {meeting.transcript ? (
-                <div className="max-h-[460px] overflow-y-auto rounded-2xl border border-zinc-900 bg-black/60 p-4">
+                <div className="max-h-[520px] overflow-y-auto rounded-3xl border border-white/10 bg-black/60 p-5">
                   <p className="whitespace-pre-line text-sm leading-7 text-zinc-300">
                     {meeting.transcript}
                   </p>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-dashed border-zinc-800 bg-black/40 p-8 text-center">
+                <div className="rounded-3xl border border-dashed border-white/10 bg-black/40 p-10 text-center">
                   <p className="text-sm text-zinc-500">
                     Click Transcribe to generate a transcript.
                   </p>
@@ -243,11 +267,11 @@ export default function MeetingDetail() {
           </Card>
 
           <div className="space-y-6">
-            <Card className="border-zinc-800 bg-zinc-950/70">
+            <Card className="border-white/10 bg-zinc-950/60 backdrop-blur">
               <CardContent className="p-6">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="rounded-xl bg-zinc-900 p-2">
-                    <Sparkles className="h-5 w-5 text-zinc-300" />
+                <div className="mb-5 flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-200">
+                    <Sparkles className="h-5 w-5" />
                   </div>
                   <div>
                     <h2 className="font-semibold text-white">Summary</h2>
@@ -270,11 +294,11 @@ export default function MeetingDetail() {
             </Card>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              <Card className="border-zinc-800 bg-zinc-950/70">
+              <Card className="border-white/10 bg-zinc-950/60 backdrop-blur">
                 <CardContent className="p-6">
-                  <div className="mb-4 flex items-center gap-3">
-                    <div className="rounded-xl bg-zinc-900 p-2">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-300">
+                      <CheckCircle2 className="h-5 w-5" />
                     </div>
                     <h2 className="font-semibold text-white">Decisions</h2>
                   </div>
@@ -282,7 +306,10 @@ export default function MeetingDetail() {
                   {meeting.decisions && meeting.decisions.length > 0 ? (
                     <ul className="space-y-3 text-sm text-zinc-300">
                       {meeting.decisions.map((decision, index) => (
-                        <li key={index} className="rounded-xl bg-black/50 p-3">
+                        <li
+                          key={index}
+                          className="rounded-2xl border border-white/10 bg-black/50 p-4"
+                        >
                           {decision}
                         </li>
                       ))}
@@ -293,11 +320,11 @@ export default function MeetingDetail() {
                 </CardContent>
               </Card>
 
-              <Card className="border-zinc-800 bg-zinc-950/70">
+              <Card className="border-white/10 bg-zinc-950/60 backdrop-blur">
                 <CardContent className="p-6">
-                  <div className="mb-4 flex items-center gap-3">
-                    <div className="rounded-xl bg-zinc-900 p-2">
-                      <ListChecks className="h-5 w-5 text-blue-400" />
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-200">
+                      <ListChecks className="h-5 w-5" />
                     </div>
                     <h2 className="font-semibold text-white">Action Items</h2>
                   </div>
@@ -305,7 +332,10 @@ export default function MeetingDetail() {
                   {meeting.action_items && meeting.action_items.length > 0 ? (
                     <ul className="space-y-3 text-sm text-zinc-300">
                       {meeting.action_items.map((item, index) => (
-                        <li key={index} className="rounded-xl bg-black/50 p-3">
+                        <li
+                          key={index}
+                          className="rounded-2xl border border-white/10 bg-black/50 p-4"
+                        >
                           {item}
                         </li>
                       ))}
@@ -319,11 +349,11 @@ export default function MeetingDetail() {
           </div>
         </section>
 
-        <Card className="mt-6 border-zinc-800 bg-zinc-950/70">
+        <Card className="mt-6 border-white/10 bg-zinc-950/60 backdrop-blur">
           <CardContent className="p-6">
             <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-xl bg-zinc-900 p-2">
-                <MessageSquareText className="h-5 w-5 text-zinc-300" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/5 text-cyan-200">
+                <MessageSquareText className="h-5 w-5" />
               </div>
               <div>
                 <h2 className="font-semibold text-white">Ask this meeting</h2>
@@ -335,7 +365,7 @@ export default function MeetingDetail() {
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <Input
-                className="h-12 border-zinc-800 bg-black text-white placeholder:text-zinc-600"
+                className="h-12 border-white/10 bg-black/70 text-white placeholder:text-zinc-600"
                 placeholder="Ask: who owns the next steps?"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
@@ -347,7 +377,7 @@ export default function MeetingDetail() {
               <Button
                 onClick={handleAsk}
                 disabled={asking || !meeting.transcript}
-                className="h-12 rounded-full bg-white px-6 text-black hover:bg-zinc-200"
+                className="h-12 rounded-2xl bg-white px-6 text-black hover:bg-zinc-200"
               >
                 {asking ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -361,8 +391,8 @@ export default function MeetingDetail() {
             </div>
 
             {answer && (
-              <div className="mt-5 rounded-2xl border border-zinc-800 bg-black/60 p-5">
-                <div className="mb-3 flex items-center gap-2 text-sm font-medium text-zinc-300">
+              <div className="mt-5 rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-5">
+                <div className="mb-3 flex items-center gap-2 text-sm font-medium text-cyan-200">
                   <Bot className="h-4 w-4" />
                   Copilot answer
                 </div>
