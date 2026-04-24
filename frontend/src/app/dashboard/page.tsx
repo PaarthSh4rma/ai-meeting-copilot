@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { deleteMeeting, getMeetings } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
-
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
@@ -55,8 +55,9 @@ export default function Dashboard() {
               className="bg-zinc-900 border-zinc-800"
             >
               <CardContent className="p-6">
+                <Link href={`/meetings/${meeting.id}`}>
                 <h2 className="text-lg font-semibold">{meeting.title}</h2>
-
+                </Link>
                 <p className="text-sm text-zinc-400 mt-1">
                   {meeting.filename}
                 </p>

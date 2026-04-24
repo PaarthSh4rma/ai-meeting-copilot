@@ -3,6 +3,7 @@ from datetime import datetime
 import json
 import os
 import uuid
+from fastapi import HTTPException
 
 router = APIRouter()
 
@@ -86,3 +87,17 @@ def delete_meeting(meeting_id: str):
         "message": "meeting deleted successfully",
         "meeting_id": meeting_id,
     }
+
+@router.get("/meetings/{meeting_id}")
+def get_meeting(meeting_id: str):
+    meetings = load_meetings()
+
+    meeting = next(
+        (meeting for meeting in meetings if meeting["id"] == meeting_id),
+        None,
+    )
+
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    return meeting
