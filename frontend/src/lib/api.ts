@@ -36,3 +36,15 @@ export async function getMeetings() {
 
   return res.json();
 }
+
+export async function deleteMeeting(meetingId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/meetings/${meetingId}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to delete meeting");
+  }
+
+  return res.json();
+}

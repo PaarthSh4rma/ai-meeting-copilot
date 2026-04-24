@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMeetings } from "@/lib/api";
+import { deleteMeeting, getMeetings } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
+
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 type Meeting = {
   id: string;
@@ -15,6 +18,17 @@ type Meeting = {
 export default function Dashboard() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
+
+  async function handleDelete(meetingId: string) {
+  try {
+    await deleteMeeting(meetingId);
+    setMeetings((current) =>
+      current.filter((meeting) => meeting.id !== meetingId)
+    );
+  } catch {
+    alert("Failed to delete meeting.");
+  }
+}
 
   useEffect(() => {
     getMeetings()
@@ -50,6 +64,16 @@ export default function Dashboard() {
                 <p className="text-xs text-zinc-500 mt-2">
                   Status: {meeting.status}
                 </p>
+
+                <Button
+                    variant="destructive"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => handleDelete(meeting.id)}
+                    >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                    </Button>
               </CardContent>
             </Card>
           ))}

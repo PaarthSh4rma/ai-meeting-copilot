@@ -58,3 +58,31 @@ async def upload_file(file: UploadFile = File(...)):
 @router.get("/meetings")
 def get_meetings():
     return load_meetings()
+
+@router.delete("/meetings/{meeting_id}")
+def delete_meeting(meeting_id: str):
+    meetings = load_meetings()
+
+    meeting_to_delete = next(
+        (meeting for meeting in meetings if meeting["id"] == meeting_id),
+        None,
+    )
+
+    if not meeting_to_delete:
+        return {"message": "meeting not found"}
+
+    audio_path = meeting_to_delete.get("audio_path")
+
+    if audio_path and os.path.exists(audio_path):
+        os.remove(audio_path)
+
+    updated_meetings = [
+        meeting for meeting in meetings if meeting["id"] != meeting_id
+    ]
+
+    save_meetings(updated_meetings)
+
+    return {
+        "message": "meeting deleted successfully",
+        "meeting_id": meeting_id,
+    }
