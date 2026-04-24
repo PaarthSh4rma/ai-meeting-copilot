@@ -16,6 +16,8 @@ type Meeting = {
   audio_path: string;
   transcript?: string;
   summary?: string;
+  decisions?: string[];
+  action_items?: string[];
 };
 
 export default function MeetingDetail() {
@@ -148,14 +150,41 @@ async function handleSummarize() {
                 )}
             </CardContent>
             </Card>
-          <Card className="border-zinc-800 bg-zinc-950">
-            <CardContent className="p-6">
-              <h2 className="font-semibold text-white">Action Items</h2>
-              <p className="mt-2 text-sm text-zinc-400">
-                Extracted tasks will appear here.
-              </p>
-            </CardContent>
-          </Card>
+
+            <Card className="border-zinc-800 bg-zinc-950">
+  <CardContent className="p-6">
+    <h2 className="font-semibold text-white">Decisions</h2>
+
+    {meeting.decisions && meeting.decisions.length > 0 ? (
+      <ul className="mt-3 space-y-2 text-sm text-zinc-400">
+        {meeting.decisions.map((decision, index) => (
+          <li key={index}>• {decision}</li>
+        ))}
+      </ul>
+    ) : (
+      <p className="mt-2 text-sm text-zinc-400">
+        No decisions extracted yet.
+      </p>
+    )}
+  </CardContent>
+</Card>
+<Card className="border-zinc-800 bg-zinc-950">
+  <CardContent className="p-6">
+    <h2 className="font-semibold text-white">Action Items</h2>
+
+    {meeting.action_items && meeting.action_items.length > 0 ? (
+      <ul className="mt-3 space-y-2 text-sm text-zinc-400">
+        {meeting.action_items.map((item, index) => (
+          <li key={index}>• {item}</li>
+        ))}
+      </ul>
+    ) : (
+      <p className="mt-2 text-sm text-zinc-400">
+        No action items extracted yet.
+      </p>
+    )}
+  </CardContent>
+</Card>
 
           <Card className="border-zinc-800 bg-zinc-950">
             <CardContent className="p-6">

@@ -5,7 +5,7 @@ import os
 import uuid
 from fastapi import HTTPException
 from app.services.transcription_service import transcribe_audio
-from app.services.summary_service import generate_summary
+from app.services.summary_service import generate_meeting_insights
 
 router = APIRouter()
 
@@ -152,10 +152,13 @@ def summarize_meeting(meeting_id: str):
     meeting["status"] = "summarizing"
     save_meetings(meetings)
 
-    summary = generate_summary(transcript)
+    insights = generate_meeting_insights(transcript)
 
-    meeting["summary"] = summary
+    meeting["summary"] = insights.get("summary", "")
+    meeting["decisions"] = insights.get("decisions", [])
+    meeting["action_items"] = insights.get("action_items", [])
     meeting["status"] = "completed"
+
     save_meetings(meetings)
 
     return meeting
