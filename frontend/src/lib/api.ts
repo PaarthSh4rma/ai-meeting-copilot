@@ -82,3 +82,19 @@ export async function summarizeMeeting(meetingId: string) {
 
   return res.json();
 }
+
+export async function askMeeting(meetingId: string, question: string) {
+  const res = await fetch(`${API_BASE_URL}/api/meetings/${meetingId}/ask`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ question }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to query meeting");
+  }
+
+  return res.json();
+}

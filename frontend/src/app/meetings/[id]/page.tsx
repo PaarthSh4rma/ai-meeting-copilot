@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getMeeting, transcribeMeeting, summarizeMeeting } from "@/lib/api";
+import { getMeeting, transcribeMeeting, summarizeMeeting, askMeeting } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ export default function MeetingDetail() {
   const [transcribing, setTranscribing] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
 
+  
   useEffect(() => {
     if (!meetingId) return;
 
@@ -38,6 +39,23 @@ export default function MeetingDetail() {
       .finally(() => setLoading(false));
   }, [meetingId]);
 
+const [question, setQuestion] = useState("");
+const [answer, setAnswer] = useState("");
+const [asking, setAsking] = useState(false);
+
+async function handleAsk() {
+  if (!question) return;
+
+  try {
+    setAsking(true);
+    const res = await askMeeting(meetingId, question);
+    setAnswer(res.answer);
+  } catch {
+    alert("Failed to get answer.");
+  } finally {
+    setAsking(false);
+  }
+}
 async function handleSummarize() {
   if (!meetingId) return;
 
@@ -186,14 +204,28 @@ async function handleSummarize() {
   </CardContent>
 </Card>
 
-          <Card className="border-zinc-800 bg-zinc-950">
-            <CardContent className="p-6">
-              <h2 className="font-semibold text-white">Chat</h2>
-              <p className="mt-2 text-sm text-zinc-400">
-                Meeting Q&A will appear here.
-              </p>
-            </CardContent>
-          </Card>
+<Card className="border-zinc-800 bg-zinc-950 md:col-span-3">
+  <CardContent className="p-6 space-y-4">
+    <h2 className="font-semibold text-white">Ask this meeting</h2>
+
+    <input
+      className="w-full rounded-md bg-zinc-900 p-2 text-sm text-white"
+      placeholder="Ask a question..."
+      value={question}
+      onChange={(e) => setQuestion(e.target.value)}
+    />
+
+    <Button onClick={handleAsk} disabled={asking}>
+      {asking ? "Thinking..." : "Ask"}
+    </Button>
+
+    {answer && (
+      <p className="text-sm text-zinc-400 whitespace-pre-line">
+        {answer}
+      </p>
+    )}
+  </CardContent>
+</Card>
         </div>
       </div>
     </main>

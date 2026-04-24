@@ -3,9 +3,14 @@ from datetime import datetime
 import json
 import os
 import uuid
+import requests
 from fastapi import HTTPException
 from app.services.transcription_service import transcribe_audio
 from app.services.summary_service import generate_meeting_insights
+from pydantic import BaseModel
+
+class AskMeetingRequest(BaseModel):
+    question: str
 
 router = APIRouter()
 
@@ -162,3 +167,52 @@ def summarize_meeting(meeting_id: str):
     save_meetings(meetings)
 
     return meeting
+
+
+
+
+@router.post("/meetings/{meeting_id}/ask")
+def ask_meeting(meeting_id: str, request: AskMeetingRequest):
+    meetings = load_meetings()
+
+    meeting = next(
+        (meeting for meeting in meetings if meeting["id"] == meeting_id),
+        None,
+    )
+
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    transcript = meeting.get("transcript")
+
+    if not transcript:
+        raise HTTPException(status_code=400, detail="No transcript available")
+
+    prompt = f"""
+You are an AI assistant answering questions about a meeting.
+
+Transcript:
+{transcript}
+
+Question:
+{request.question}
+
+Answer clearly and concisely.
+"""
+
+    response = requests.post(
+        "http://localhost:11434/api/generate",
+        json={
+            "model": "llama3.2",
+            "prompt": prompt,
+            "stream": False,
+        },
+        timeout=120,
+    )
+
+    response.raise_for_status()
+    data = response.json()
+
+    return {
+        "answer": data.get("response", "")
+    }
