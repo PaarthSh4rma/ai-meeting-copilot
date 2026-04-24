@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getHealth } from "@/lib/api";
-import { CheckCircle2, FileText, Mic, Sparkles } from "lucide-react";
+import { getHealth, uploadMeetingAudio } from "@/lib/api";
+import { CheckCircle2, FileText, Mic, Sparkles, Upload } from "lucide-react";
 
 const features = [
   {
@@ -39,6 +39,22 @@ export default function Home() {
       .catch(() => setBackendStatus("Backend not reachable"));
   }, []);
 
+  const [uploadStatus, setUploadStatus] = useState("");
+
+async function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  try {
+    setUploadStatus(`Uploading ${file.name}...`);
+    const result = await uploadMeetingAudio(file);
+    setUploadStatus(`Uploaded: ${result.filename}`);
+  } catch {
+    setUploadStatus("Upload failed. Is the backend running?");
+  }
+}
+
   return (
     <main className="min-h-screen bg-black text-white">
       <section className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-28 text-center">
@@ -54,14 +70,26 @@ export default function Home() {
           Upload meeting audio, generate transcripts, summarize decisions,
           extract action items, and chat with your meeting history.
         </p>
+<div>
+          <label>
+            <input
+              type="file"
+              accept="audio/*"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Button
-            size="lg"
-            className="rounded-full bg-white text-black hover:bg-zinc-200"
-          >
-            Upload Meeting
-          </Button>
+            <Button
+              size="lg"
+              className="rounded-full bg-white text-black hover:bg-zinc-200"
+              asChild
+            >
+              <span>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Meeting
+              </span>
+            </Button>
+          </label>
 
           <Button
             size="lg"
@@ -82,6 +110,9 @@ export default function Home() {
             {backendStatus}
           </span>
         </p>
+        {uploadStatus && (
+  <p className="mt-2 text-sm text-zinc-400">{uploadStatus}</p>
+)}
 
         <div className="mt-16 grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature) => (
