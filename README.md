@@ -184,9 +184,3 @@ without relying on external APIs.
 * Designing APIs for AI workflows
 * Handling async processing + UI states
 
----
-
-## 📄 License
-
-MIT
-
