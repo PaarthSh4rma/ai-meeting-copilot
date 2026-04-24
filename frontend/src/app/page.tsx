@@ -7,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getHealth, uploadMeetingAudio } from "@/lib/api";
 import { CheckCircle2, FileText, Mic, Sparkles, Upload } from "lucide-react";
 
+import Link from "next/link";
+
 const features = [
   {
     icon: Mic,
@@ -90,14 +92,13 @@ async function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
               </span>
             </Button>
           </label>
-
+<Link href="/dashboard">
           <Button
             size="lg"
             variant="outline"
-            className="rounded-full border-zinc-700 bg-transparent text-white hover:bg-zinc-900"
-          >
+            className="rounded-full border-zinc-700 bg-transparent text-white hover:bg-zinc-900">
             View Dashboard
-          </Button>
+          </Button></Link>
         </div>
 
         <p className="mt-4 text-sm text-zinc-500">

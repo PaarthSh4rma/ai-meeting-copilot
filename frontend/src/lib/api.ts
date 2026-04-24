@@ -26,3 +26,13 @@ export async function uploadMeetingAudio(file: File) {
 
   return res.json();
 }
+
+export async function getMeetings() {
+  const res = await fetch(`${API_BASE_URL}/api/meetings`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch meetings");
+  }
+
+  return res.json();
+}
