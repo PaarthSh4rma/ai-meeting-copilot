@@ -6,13 +6,24 @@ app = FastAPI(title="AI Meeting Copilot API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+    "http://localhost:3000",
+    "https://ai-meeting-copilot-psi.vercel.app/",
+],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(upload_router, prefix="/api")
+
+@app.get("/")
+def root():
+    return {
+        "message": "AI Meeting Copilot API",
+        "docs": "/docs",
+        "health": "/health",
+    }
 
 @app.get("/health")
 def health_check():
