@@ -70,3 +70,15 @@ export async function transcribeMeeting(meetingId: string) {
 
   return res.json();
 }
+
+export async function summarizeMeeting(meetingId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/meetings/${meetingId}/summarize`, {
+    method: "POST",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to summarize meeting");
+  }
+
+  return res.json();
+}

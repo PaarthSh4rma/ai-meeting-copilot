@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getMeeting, transcribeMeeting } from "@/lib/api";
+import { getMeeting, transcribeMeeting, summarizeMeeting } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ type Meeting = {
   created_at: string;
   audio_path: string;
   transcript?: string;
+  summary?: string;
 };
 
 export default function MeetingDetail() {
@@ -24,6 +25,7 @@ export default function MeetingDetail() {
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [loading, setLoading] = useState(true);
   const [transcribing, setTranscribing] = useState(false);
+  const [summarizing, setSummarizing] = useState(false);
 
   useEffect(() => {
     if (!meetingId) return;
@@ -34,6 +36,19 @@ export default function MeetingDetail() {
       .finally(() => setLoading(false));
   }, [meetingId]);
 
+async function handleSummarize() {
+  if (!meetingId) return;
+
+  try {
+    setSummarizing(true);
+    const updatedMeeting = await summarizeMeeting(meetingId);
+    setMeeting(updatedMeeting);
+  } catch {
+    alert("Failed to summarize meeting.");
+  } finally {
+    setSummarizing(false);
+  }
+}
   async function handleTranscribe() {
     if (!meetingId) return;
 
@@ -89,7 +104,16 @@ export default function MeetingDetail() {
                   ? "Transcribed"
                   : "Transcribe Meeting"}
             </Button>
+            
           </div>
+          <div className="mt-4">
+            <Button
+                onClick={handleSummarize}
+                disabled={summarizing || !meeting.transcript}
+            >
+                {summarizing ? "Generating summary..." : "Generate Summary"}
+            </Button>
+            </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -109,15 +133,21 @@ export default function MeetingDetail() {
             </CardContent>
           </Card>
 
-          <Card className="border-zinc-800 bg-zinc-950">
+            <Card className="border-zinc-800 bg-zinc-950 md:col-span-3">
             <CardContent className="p-6">
-              <h2 className="font-semibold text-white">Summary</h2>
-              <p className="mt-2 text-sm text-zinc-400">
-                AI summary will appear here.
-              </p>
-            </CardContent>
-          </Card>
+                <h2 className="font-semibold text-white">Summary</h2>
 
+                {meeting.summary ? (
+                <p className="mt-3 whitespace-pre-line text-sm leading-6 text-zinc-400">
+                    {meeting.summary}
+                </p>
+                ) : (
+                <p className="mt-2 text-sm text-zinc-400">
+                    Click “Generate Summary” to create AI insights.
+                </p>
+                )}
+            </CardContent>
+            </Card>
           <Card className="border-zinc-800 bg-zinc-950">
             <CardContent className="p-6">
               <h2 className="font-semibold text-white">Action Items</h2>

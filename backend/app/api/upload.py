@@ -5,6 +5,7 @@ import os
 import uuid
 from fastapi import HTTPException
 from app.services.transcription_service import transcribe_audio
+from app.services.summary_service import generate_summary
 
 router = APIRouter()
 
@@ -127,6 +128,34 @@ def transcribe_meeting(meeting_id: str):
 
     meeting["transcript"] = transcript
     meeting["status"] = "transcribed"
+    save_meetings(meetings)
+
+    return meeting
+
+@router.post("/meetings/{meeting_id}/summarize")
+def summarize_meeting(meeting_id: str):
+    meetings = load_meetings()
+
+    meeting = next(
+        (meeting for meeting in meetings if meeting["id"] == meeting_id),
+        None,
+    )
+
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    transcript = meeting.get("transcript")
+
+    if not transcript:
+        raise HTTPException(status_code=400, detail="No transcript available")
+
+    meeting["status"] = "summarizing"
+    save_meetings(meetings)
+
+    summary = generate_summary(transcript)
+
+    meeting["summary"] = summary
+    meeting["status"] = "completed"
     save_meetings(meetings)
 
     return meeting
