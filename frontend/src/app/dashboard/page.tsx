@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { BackButton } from "@/components/layout/back-button";
 
 type Meeting = {
   id: string;
@@ -40,12 +41,20 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-black text-white px-6 py-16">
       <div className="max-w-5xl mx-auto">
+          <BackButton label="Back to homepage" />
         <h1 className="text-3xl font-bold mb-8">Your Meetings</h1>
 
         {loading && <p className="text-zinc-400">Loading...</p>}
 
         {!loading && meetings.length === 0 && (
-          <p className="text-zinc-500">No meetings uploaded yet.</p>
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-8 text-center">
+            <p className="text-zinc-400">No meetings uploaded yet.</p>
+            <Link href="/">
+              <Button className="mt-4 rounded-full bg-white text-black hover:bg-zinc-200">
+                Upload your first meeting
+              </Button>
+            </Link>
+          </div>
         )}
 
         <div className="grid gap-4">

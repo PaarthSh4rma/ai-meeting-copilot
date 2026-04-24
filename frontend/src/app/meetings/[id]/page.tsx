@@ -6,6 +6,7 @@ import { getMeeting, transcribeMeeting, summarizeMeeting, askMeeting } from "@/l
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/layout/back-button";
 
 type Meeting = {
   id: string;
@@ -102,6 +103,8 @@ async function handleSummarize() {
   return (
     <main className="min-h-screen bg-black px-6 py-16 text-white">
       <div className="mx-auto max-w-5xl space-y-6">
+        <BackButton label="Back to dashboard" />
+
         <div>
           <Badge variant="outline" className="border-zinc-700 text-zinc-300">
             {meeting.status}
