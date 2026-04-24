@@ -1,10 +1,9 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from datetime import datetime
 import json
 import os
 import uuid
 import requests
-from fastapi import HTTPException
 from app.services.transcription_service import transcribe_audio
 from app.services.summary_service import generate_meeting_insights
 from pydantic import BaseModel
@@ -37,7 +36,8 @@ def save_meetings(meetings):
 
 
 @router.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...),
+    title: str = Form(None)):
     meeting_id = str(uuid.uuid4())
     file_ext = file.filename.split(".")[-1]
     file_path = f"{UPLOAD_DIR}/{meeting_id}.{file_ext}"
@@ -49,7 +49,7 @@ async def upload_file(file: UploadFile = File(...)):
 
     meeting = {
         "id": meeting_id,
-        "title": file.filename.rsplit(".", 1)[0],
+        "title": title or file.filename.rsplit(".", 1)[0],
         "filename": file.filename,
         "audio_path": file_path,
         "status": "uploaded",

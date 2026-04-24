@@ -11,9 +11,13 @@ export async function getHealth() {
   return res.json();
 }
 
-export async function uploadMeetingAudio(file: File) {
+export async function uploadMeetingAudio(file: File, title?: string) {
   const formData = new FormData();
   formData.append("file", file);
+
+  if (title) {
+    formData.append("title", title);
+  }
 
   const res = await fetch(`${API_BASE_URL}/api/upload`, {
     method: "POST",
@@ -26,6 +30,7 @@ export async function uploadMeetingAudio(file: File) {
 
   return res.json();
 }
+
 
 export async function getMeetings() {
   const res = await fetch(`${API_BASE_URL}/api/meetings`);

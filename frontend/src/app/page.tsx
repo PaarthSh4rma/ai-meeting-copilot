@@ -11,9 +11,11 @@ import {
   Sparkles,
   Upload,
 } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { getHealth, uploadMeetingAudio } from "@/lib/api";
 
 const features = [
@@ -42,6 +44,7 @@ const features = [
 export default function Home() {
   const [backendStatus, setBackendStatus] = useState("checking");
   const [uploadStatus, setUploadStatus] = useState("");
+  const [meetingTitle, setMeetingTitle] = useState("");
 
   useEffect(() => {
     getHealth()
@@ -55,8 +58,10 @@ export default function Home() {
 
     try {
       setUploadStatus(`Uploading ${file.name}...`);
-      const result = await uploadMeetingAudio(file);
-      setUploadStatus(`Uploaded ${result.filename}`);
+      const result = await uploadMeetingAudio(file, meetingTitle.trim());
+      setUploadStatus(`Uploaded ${result.title || result.filename}`);
+      setMeetingTitle("");
+      event.target.value = "";
     } catch {
       setUploadStatus("Upload failed. Check backend is running.");
     }
@@ -66,7 +71,10 @@ export default function Home() {
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,#18181b_0%,#000_42%)] text-white">
       <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
-          <Badge variant="outline" className="border-zinc-700 bg-zinc-950/60 text-zinc-300">
+          <Badge
+            variant="outline"
+            className="border-zinc-700 bg-zinc-950/60 text-zinc-300"
+          >
             Local AI meeting intelligence
           </Badge>
 
@@ -79,7 +87,16 @@ export default function Home() {
             action items with LLMs, then ask questions across the meeting.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 max-w-md">
+            <Input
+              value={meetingTitle}
+              onChange={(e) => setMeetingTitle(e.target.value)}
+              placeholder="Meeting display name, e.g. Product sync"
+              className="h-12 border-zinc-800 bg-zinc-950 text-white placeholder:text-zinc-500"
+            />
+          </div>
+
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <label>
               <input
                 type="file"
@@ -132,10 +149,9 @@ export default function Home() {
               <div className="mb-5 flex items-center justify-between">
                 <div>
                   <p className="text-sm text-zinc-500">Latest meeting</p>
-                  <h2 className="mt-1 text-xl font-semibold">
-                    Product sync
-                  </h2>
+                  <h2 className="mt-1 text-xl font-semibold">Product sync</h2>
                 </div>
+
                 <Badge className="bg-emerald-500/10 text-emerald-400">
                   completed
                 </Badge>
@@ -148,7 +164,10 @@ export default function Home() {
                   "2 decisions identified",
                   "Q&A ready",
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-3 rounded-xl border border-zinc-900 bg-zinc-950 p-3">
+                  <div
+                    key={item}
+                    className="flex items-center gap-3 rounded-xl border border-zinc-900 bg-zinc-950 p-3"
+                  >
                     <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                     <span className="text-sm text-zinc-300">{item}</span>
                   </div>
