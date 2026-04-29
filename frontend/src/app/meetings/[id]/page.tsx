@@ -70,7 +70,32 @@ export default function MeetingDetail() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [asking, setAsking] = useState(false);
+function formatActionItem(item: unknown) {
+  if (typeof item === "string") return item;
 
+  if (item && typeof item === "object") {
+    const action = item as {
+      assignee?: string;
+      owner?: string;
+      task?: string;
+      due_date?: string;
+      dueDate?: string;
+    };
+
+    const assignee = action.assignee || action.owner;
+    const dueDate = action.due_date || action.dueDate;
+
+    return [
+      assignee ? `${assignee}:` : null,
+      action.task || JSON.stringify(item),
+      dueDate ? `(Due: ${dueDate})` : null,
+    ]
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  return String(item);
+}
   async function refreshMeeting() {
     if (!meetingId) return;
 
