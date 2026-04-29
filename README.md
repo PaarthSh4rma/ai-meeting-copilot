@@ -60,8 +60,11 @@ AI Meeting Copilot is a full-stack AI application that transforms meeting audio 
 ## Project Structure
 
 frontend/ → Next.js app
+
 backend/ → FastAPI server
+
 uploads/ → audio files (local dev)
+
 data/ → meeting metadata (JSON)
 
 ---
