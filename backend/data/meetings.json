@@ -1,22 +1,5 @@
 [
   {
-    "id": "6c70b5f7-c1d2-49ce-8827-1661c15d05e5",
-    "title": "Test",
-    "filename": "ttsMP3.com_VoiceText_2026-4-24_23-52-1.mp3",
-    "audio_path": "uploads/6c70b5f7-c1d2-49ce-8827-1661c15d05e5.mp3",
-    "status": "completed",
-    "created_at": "2026-04-24T14:24:47.708603",
-    "transcript": "We discussed the new dashboard feature. The team agreed to prioritize performance improvements. Alex will optimize database queries by Thursday. For year we'll redesign the UI components. We will launch the update next week.",
-    "summary": "The team discussed the new dashboard feature and prioritized performance improvements.",
-    "decisions": [
-      "Prioritize performance improvements"
-    ],
-    "action_items": [
-      "Alex to optimize database queries by Thursday",
-      "Redesign UI components for the upcoming year"
-    ]
-  },
-  {
     "id": "6769c557-7ba3-48cd-992d-abf5b0e829e7",
     "title": "Black Eyed Peas",
     "filename": "I_Gotta_Feeling-290773-mobiles24.mp3",
@@ -29,5 +12,27 @@
       "To proceed with the contest"
     ],
     "action_items": []
+  },
+  {
+    "id": "cbc2b97c-c841-489b-9344-b72347ab01b6",
+    "title": "Test",
+    "filename": "ttsMP3.com_VoiceText_2026-4-24_23-52-1.mp3",
+    "audio_path": "uploads/cbc2b97c-c841-489b-9344-b72347ab01b6.mp3",
+    "status": "completed",
+    "created_at": "2026-04-29T10:54:31.442385",
+    "transcript": "We discussed the new dashboard feature. The team agreed to prioritize performance improvements. Alex will optimize database queries by Thursday. For year we'll redesign the UI components. We will launch the update next week.",
+    "summary": "The team discussed the new dashboard feature, agreeing to prioritize performance improvements. The UI components will be redesigned, and the update is scheduled for launch next week. Alex will be responsible for optimizing database queries.",
+    "decisions": [
+      "Prioritize performance improvements for the new dashboard feature.",
+      "Redesign the UI components.",
+      "Launch the update next week."
+    ],
+    "action_items": [
+      {
+        "assignee": "Alex",
+        "task": "Optimize database queries",
+        "due_date": "Thursday"
+      }
+    ]
   }
 ]

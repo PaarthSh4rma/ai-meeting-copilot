@@ -1,47 +1,90 @@
 import json
-import requests
+import os
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL = "gemini-2.5-flash-lite"
+
+GEMINI_URL = (
+    f"https://generativelanguage.googleapis.com/v1beta/models/"
+    f"{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+)
 
 
 def generate_meeting_insights(transcript: str):
+    if not GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY is not set")
+
     prompt = f"""
 You are an AI meeting assistant.
 
-Return ONLY valid JSON. Do not include markdown.
+Extract structured meeting insights from this transcript.
 
-The JSON must have this shape:
-{{
-  "summary": "A concise 3-5 sentence meeting summary.",
-  "decisions": ["Decision 1", "Decision 2"],
-  "action_items": ["Action item 1", "Action item 2"]
-}}
-
-If there are no decisions or action items, return an empty array.
+Return JSON with:
+- summary: concise 3-5 sentence summary
+- decisions: array of key decisions
+- action_items: array of action items
 
 Transcript:
 {transcript}
 """
 
     response = requests.post(
-        OLLAMA_URL,
+        GEMINI_URL,
         json={
-            "model": "llama3.2",
-            "prompt": prompt,
-            "stream": False,
-            "format": "json",
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "response_mime_type": "application/json",
+            },
         },
         timeout=120,
     )
 
     response.raise_for_status()
-    raw_response = response.json().get("response", "{}")
 
-    try:
-        return json.loads(raw_response)
-    except json.JSONDecodeError:
-        return {
-            "summary": raw_response,
-            "decisions": [],
-            "action_items": [],
-        }
+    data = response.json()
+    text = data["candidates"][0]["content"]["parts"][0]["text"]
+
+    parsed = json.loads(text)
+
+    return {
+        "summary": parsed.get("summary", ""),
+        "decisions": parsed.get("decisions", []),
+        "action_items": parsed.get("action_items", []),
+    }
+
+
+def answer_meeting_question(transcript: str, question: str):
+    if not GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY is not set")
+
+    prompt = f"""
+You are an AI assistant answering questions about a meeting.
+
+Use only the transcript below. If the answer is not in the transcript, say so.
+
+Transcript:
+{transcript}
+
+Question:
+{question}
+
+Answer clearly and concisely.
+"""
+
+    response = requests.post(
+        GEMINI_URL,
+        json={
+            "contents": [{"parts": [{"text": prompt}]}],
+        },
+        timeout=120,
+    )
+
+    response.raise_for_status()
+
+    data = response.json()
+    return data["candidates"][0]["content"]["parts"][0]["text"]

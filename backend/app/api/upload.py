@@ -5,7 +5,10 @@ import os
 import uuid
 import requests
 from app.services.transcription_service import transcribe_audio
-from app.services.summary_service import generate_meeting_insights
+from app.services.summary_service import (
+    answer_meeting_question,
+    generate_meeting_insights,
+)
 from pydantic import BaseModel
 
 class AskMeetingRequest(BaseModel):
@@ -188,31 +191,6 @@ def ask_meeting(meeting_id: str, request: AskMeetingRequest):
     if not transcript:
         raise HTTPException(status_code=400, detail="No transcript available")
 
-    prompt = f"""
-You are an AI assistant answering questions about a meeting.
+    answer = answer_meeting_question(transcript, request.question)
 
-Transcript:
-{transcript}
-
-Question:
-{request.question}
-
-Answer clearly and concisely.
-"""
-
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": "llama3.2",
-            "prompt": prompt,
-            "stream": False,
-        },
-        timeout=120,
-    )
-
-    response.raise_for_status()
-    data = response.json()
-
-    return {
-        "answer": data.get("response", "")
-    }
+    return {"answer": answer}
