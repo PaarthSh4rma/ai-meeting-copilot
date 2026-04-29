@@ -149,3 +149,6 @@ This project explores how **local AI models** can:
 * Designing APIs for AI workflows
 * Handling async processing + UI states
 
+---
+## License
+MIT
