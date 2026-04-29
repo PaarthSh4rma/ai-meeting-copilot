@@ -37,10 +37,30 @@ type Meeting = {
   audio_path?: string;
   transcript?: string;
   summary?: string;
-  decisions?: string[];
-  action_items?: string[];
+  decisions?: unknown[];
+  action_items?: unknown[];
 };
+function formatInsightItem(item: unknown) {
+  if (typeof item === "string") return item;
 
+  if (item && typeof item === "object") {
+    const value = item as Record<string, unknown>;
+
+    const assignee = value.assignee || value.owner;
+    const task = value.task || value.action || value.description || value.decision;
+    const dueDate = value.due_date || value.dueDate || value.deadline;
+
+    const parts = [
+      assignee ? `${String(assignee)}:` : null,
+      task ? String(task) : JSON.stringify(value),
+      dueDate ? `(Due: ${String(dueDate)})` : null,
+    ];
+
+    return parts.filter(Boolean).join(" ");
+  }
+
+  return String(item);
+}
 function getStatusClass(status?: string) {
   if (status === "completed") {
     return "border-emerald-500/20 bg-emerald-500/10 text-emerald-400";
@@ -244,9 +264,16 @@ function formatActionItem(item: unknown) {
 
   const title = meeting.title || meeting.filename || "Untitled meeting";
   const status = meeting.status || "unknown";
-  const decisions = Array.isArray(meeting.decisions) ? meeting.decisions : [];
-  const actionItems = Array.isArray(meeting.action_items)
-    ? meeting.action_items
+const decisions = Array.isArray(meeting.decisions)
+  ? meeting.decisions
+  : meeting.decisions
+    ? [meeting.decisions]
+    : [];
+
+const actionItems = Array.isArray(meeting.action_items)
+  ? meeting.action_items
+  : meeting.action_items
+    ? [meeting.action_items]
     : [];
 
   return (
@@ -410,7 +437,7 @@ function formatActionItem(item: unknown) {
                           key={index}
                           className="rounded-2xl border border-white/10 bg-black/50 p-4"
                         >
-                          {decision}
+                          {formatInsightItem(decision)}
                         </li>
                       ))}
                     </ul>
@@ -436,7 +463,7 @@ function formatActionItem(item: unknown) {
                           key={index}
                           className="rounded-2xl border border-white/10 bg-black/50 p-4"
                         >
-                          {item}
+                          {formatActionItem(item)}
                         </li>
                       ))}
                     </ul>
